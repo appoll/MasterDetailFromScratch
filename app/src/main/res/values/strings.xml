@@ -6,6 +6,8 @@
     <string name="action_settings">Settings</string>
     <string name="no_items">No items to display</string>
 
+    <string name="error_title">Oops! Sorry!</string>
+    <string name="error_message">There's been some error</string>
 
     <string-array name="android_names">
         <item>Android beta</item>
