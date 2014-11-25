@@ -25,7 +25,6 @@
         android:id="@+id/progressBar"
         android:layout_alignParentTop="true"
         android:layout_centerInParent="true"
-
         />
 
 

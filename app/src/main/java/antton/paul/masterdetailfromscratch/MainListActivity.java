@@ -3,8 +3,11 @@ package antton.paul.masterdetailfromscratch;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
@@ -13,7 +16,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,15 +33,23 @@ import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
 
 
 public class MainListActivity extends ListActivity {
 
-    protected String[] mBlogPostTitles;
+  //  protected String[] mBlogPostTitles;
     public static final int NUMBER_OF_POSTS = 20;
     public static final String TAG = MainListActivity.class.getSimpleName();
     protected JSONObject mBlogData;
     protected ProgressBar mProgressBar;
+
+    private final String KEY_TITLE = "title";
+    private final String KEY_AUTHOR = "author";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +65,7 @@ public class MainListActivity extends ListActivity {
         else
         {
             Toast.makeText(this,"Network unavailable",Toast.LENGTH_LONG).show();
+            Crouton.makeText(this, "Bla bla bla bla", Style.ALERT).show();
         }
 
         /*
@@ -62,6 +76,30 @@ public class MainListActivity extends ListActivity {
 */
         String message = getString(R.string.no_items);
         Toast.makeText(this,message, Toast.LENGTH_LONG).show();
+        Style builder = new Style.Builder().setBackgroundColor(android.R.color.black).build();
+
+
+        Crouton.makeText(this, "On my way to devfest yeahhh", builder).show();
+        //Crouton.makeText(this, "On my way to devfest yeahhh", Style.ALERT).show();
+    }
+
+
+    @Override
+    protected void onListItemClick(ListView l, View v, int position, long id) {
+        super.onListItemClick(l, v, position, id);
+        JSONArray jsonPosts = null;
+        try {
+            jsonPosts = mBlogData.getJSONArray("posts");
+            JSONObject jsonPost = jsonPosts.getJSONObject(position);
+            String blogUrl = jsonPost.getString("url");
+
+            Intent intent = new Intent(this,BlogWebViewActivity.class);
+            intent.setData(Uri.parse(blogUrl));
+            startActivity(intent);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private boolean isNetworkAvailable() {
@@ -175,17 +213,37 @@ public class MainListActivity extends ListActivity {
         {
             try {
                 JSONArray jsonPosts = mBlogData.getJSONArray("posts");
-                mBlogPostTitles = new String[jsonPosts.length()];
+           //     mBlogPostTitles = new String[jsonPosts.length()];
+
+                ArrayList<HashMap<String,String>> blogPosts = new ArrayList<HashMap<String, String>>();
 
                 for (int i =0; i<jsonPosts.length(); i++)
                 {
                     JSONObject post = jsonPosts.getJSONObject(i);
                     String title = post.getString("title");
                     title = Html.fromHtml(title).toString();
-                    mBlogPostTitles[i] = title;
+                //    mBlogPostTitles[i] = title;
+                    String author = post.getString("author");
+                    author = Html.fromHtml(author).toString();
+
+                    HashMap<String, String> blogPost = new HashMap<String, String>();
+                    blogPost.put(KEY_TITLE,title);
+                    blogPost.put(KEY_AUTHOR,author);
+
+                    blogPosts.add(blogPost);
+
                 }
 
-                ArrayAdapter <String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,mBlogPostTitles);
+                //ArrayAdapter <String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,mBlogPostTitles);
+                String [] keys = {KEY_TITLE, KEY_AUTHOR};
+                int[] ids = {android.R.id.text1, android.R.id.text2};
+                SimpleAdapter adapter = new SimpleAdapter(
+                        this,
+                        blogPosts,
+                        android.R.layout.simple_list_item_2,
+                        keys,
+                        ids
+                );
                 setListAdapter(adapter);
 
             } catch (JSONException e) {
