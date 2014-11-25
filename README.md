@@ -1,4 +1,4 @@
-MasterDetailFromScratch
+Not the blog reader you want
 =======================
 
-Building the master detail from scratch.
+Listviews, intents, webviews, fun fun fun.
